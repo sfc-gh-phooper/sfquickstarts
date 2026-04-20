@@ -11,19 +11,21 @@ open in snowflake: <optional but modify to link into the product>
 
 # Defensible Analytics using Data Vault and Snowflake
 <!-- ------------------------ -->
-## Overview 
+## Defensible Analytics
 
 Today, AI tools interact with data on a daily basis, and enterprises are increasingly recognizing the need for a mature [system of information management](https://datavaultalliance.com/strategy-operating/system-information-management/) that provides **defensible analytics** -- analytics based upon auditable, trustworthy enterprise memory, coupled with clear, unambiguous business context. This is rarely achieved through a series of isolated and disconnected information technology projects. Writing governance documentation that goes unread, is disregarded, or otherwise fails to be executed, is a wasted effort.
 
-Successful enterprises require a reliable **system of information management**, a system that not only transforms data, but continuously provides connected information, is aligned to business needs, accompanied by business context, using business vocabulary, with auditable lineage to the originating source. This system must generate the evidence needed to make confident decisions, defend those decisions, and enable consistent answers to questions posed through AI agents. This system must be responsive to change, which comes at the speed of business, compatible with an agile approach to implementation, maximizing reuse and avoiding duplication of effort, yet never destroying the auditability and reliability of what has already been delivered.
+Instead, enterprises require a reliable **system of information management**, a system that not only transforms data, but continuously provides connected information, is aligned to business needs, accompanied by business context, using business vocabulary, with auditable lineage to the originating source. This system must generate the evidence needed to make confident decisions, defend those decisions, and enable consistent answers to questions posed through AI agents. This system must be responsive to change, which comes at the speed of business, compatible with an agile approach to implementation, maximizing reuse and avoiding duplication of effort, yet never destroying the auditability and reliability of what has already been delivered.
 
 Data are assets, relevant to our decision-making processes, reducing the effort of, and increasing the quality, speed, and execution of our decisions. Better decision-making improves the performance of our enterprise for all stakeholders. Knowing that, how do we manage information appropriately?
 
-In 2018, at the World-Wide Data Vault Consortium (WWDVC), [Bill Inmon](https://en.wikipedia.org/wiki/Bill_Inmon) presented a slightly updated version of his classic definition of the Data Warehouse. He stated, "A data warehouse is a subject-oriented, integrated (by business key), time-variant and non-volatile collection of data in support of management’s **decision-making** process, and/or in support of **auditability** as a system-of-record." He followed that statement with his recommendation of the Data Vault system to achieve that vision. It's important to note that his definition says nothing about schema-on-write or only structured data. The phrase "collection of data" includes [unstructured](https://docs.snowflake.com/en/user-guide/unstructured-intro) and [semi-structured](https://docs.snowflake.com/en/user-guide/semistructured-intro) data. Nothing beats the Snowflake AI Data Cloud when it comes to handling those diverse types of data.
+## What is Data Vault
 
-Data Vault, as invented by [Dan Linstedt](https://datavaultalliance.com/#about), was never intended as merely a collection of data modeling standards compatible with an agile implementation methology. Data Vault has always been of a complete system of information management, with key pillars of methodology, architecture, and model, always intended to support informed decision-making processes and deliver real return on investment, impact, business outcomes. This guide cannot possibly detail the entire Data Vault system. To gain a full understanding of Data Vault, we recommend working with experts & partners from [Data Vault Alliance](https://datavaultalliance.com/).
+In 2018, at the World-Wide Data Vault Consortium (WWDVC), [Bill Inmon](https://en.wikipedia.org/wiki/Bill_Inmon) presented a slightly updated version of his classic definition of the Data Warehouse. He stated, "A data warehouse is a subject-oriented, integrated (by business key), time-variant and non-volatile collection of data in support of management’s **decision-making** process, and/or in support of **auditability** as a system-of-record." He followed that statement with his recommendation of the Data Vault system to build it. It's important to note that his definition says nothing about schema-on-write or only-structured data. The phrase "collection of data" includes [unstructured](https://docs.snowflake.com/en/user-guide/unstructured-intro) and [semi-structured](https://docs.snowflake.com/en/user-guide/semistructured-intro) data. Whether we call it a data warehouse, data lake, or data lakehouse, nothing beats the Snowflake AI Data Cloud when it comes to handling those diverse types of data.
 
-In Data Vault 2.1, Linstedt has clearly articulated a logical architecture consisting of gated [zones](https://www.youtube.com/watch?v=OkI1LWsz9Nc). At the core are the Landing Zone, the Enterprise Memory Zone, and the Information Delivery Zone. However, any logical architecture must progress to physical architecture before it can be realized in a functional implementation. This guide helps you learn how that may be accomplished in the Snowflake AI Data Cloud.
+Data Vault, as invented by [Dan Linstedt](https://datavaultalliance.com/#about), is not merely a collection of data modeling standards. Data Vault has always been of a complete system of information management, with key pillars of methodology, architecture, and model, always intended to support informed decision-making processes and deliver real return on investment, impact, business outcomes. This guide cannot possibly detail the entire Data Vault system. To gain a full understanding of Data Vault, we recommend working with experts & partners from [Data Vault Alliance](https://datavaultalliance.com/).
+
+In Data Vault 2.1, Linstedt has clearly articulated a logical architecture consisting of gated [zones](https://www.youtube.com/watch?v=OkI1LWsz9Nc). At the core are the Landing Zone, the Enterprise Memory Zone, and the Information Delivery Zone. However, before a functional implementation, the logical architecture must progress to physical. This guide is an introduction to how that may be accomplished in the Snowflake AI Data Cloud.
 
 ### Prerequisites
 - Familiarity with [Snowflake key concepts and architecture](https://docs.snowflake.com/en/user-guide/intro-key-concepts)
@@ -71,6 +73,8 @@ In addition to the databases related to our Data Vault zones, a common platform 
 
 For the sake of simplicity, this guide will not delve into utilizing multiple Snowflake accounts. However, adopting a multi-account strategy, taking advantage of Snowflake's remarkable [Secure Data Sharing](https://docs.snowflake.com/en/user-guide/data-sharing-intro), could unlock significant value for your organization. A multi-account strategy is one where a single [Organization](https://docs.snowflake.com/en/user-guide/organizations) has multiple Accounts, each serving a specific purpose. This provides you with the flexibility to distribute databases across multiple accounts, where [shared read-only access to data](https://docs.snowflake.com/en/user-guide/data-sharing-intro) with zero copying, and thus enabling the use of different [Editions](https://docs.snowflake.com/en/user-guide/intro-editions), which enable different feature sets and have different compute pricing. Databases may also be [replicated for business continuity and disaster recovery purposes](https://docs.snowflake.com/en/user-guide/account-replication-config).
 
+### Step 1: Platform Role, Warehouse, and Database
+
 Assuming you are using a new trial account, we'll start with some basics. We'll create a Platform Administrator role, as well as a virtual warehouse to use for basic administrative tasks, and a common platform database for common objects. This is meant to serve only as an example. Your role-based access control (RBAC) strategy and design may differ, but we'll use this example later in the guide.
 
 ```sql
@@ -104,6 +108,8 @@ DROP SCHEMA IF EXISTS PLT.PUBLIC;
 GRANT CREATE SCHEMA ON DATABASE PLT TO ROLE PLT_ADMIN;
 GRANT CREATE DATABASE ROLE ON DATABASE PLT TO ROLE PLT_ADMIN;
 ```
+
+### Step 2: Platform Governance Schema
 
 Let's create a schema in the platform database for governance, containing common objects that we'll provide as the platform administrator, or as a central enablement team.
 
@@ -161,6 +167,8 @@ CREATE TAG IF NOT EXISTS PLT.GOVERNANCE.DV_ZONE
 >
 > Note that while common *definitions* live in `PLT.GOVERNANCE`, the *attachment* to individual objects happens when those are created. The `GOVERNANCE_A` role's `USAGE` grant enables that attachment step.
 
+### Step 3: Platform Admin Tools Schema
+
 Let's create a schema in the platform database for administration tools, containing helpers we'll use as the platform administrator, reducing repetition and helping achieve consistency later in our deployment.
 
 ```sql
@@ -171,8 +179,7 @@ CREATE SCHEMA IF NOT EXISTS PLT.ADMIN_TOOLS
 CREATE OR REPLACE PROCEDURE PLT.ADMIN_TOOLS.CREATE_SCHEMA_AND_ROLES(
     DATABASE_NAME   VARCHAR,
     SCHEMA_NAME     VARCHAR,
-    SCHEMA_SUBJECT  VARCHAR,
-    IS_TRANSIENT    BOOLEAN DEFAULT FALSE
+    SCHEMA_SUBJECT  VARCHAR
 )
 RETURNS VARCHAR
 LANGUAGE SQL
@@ -181,7 +188,6 @@ AS
 $$
 DECLARE
     v_db        VARCHAR DEFAULT UPPER(DATABASE_NAME);
-    v_transient VARCHAR DEFAULT IFF(IS_TRANSIENT, 'TRANSIENT ', '');
     v_schema    VARCHAR DEFAULT UPPER(SCHEMA_NAME);
     v_subject   VARCHAR DEFAULT SCHEMA_SUBJECT;
 BEGIN
@@ -194,7 +200,7 @@ BEGIN
 
     -- Create the managed access schema
     EXECUTE IMMEDIATE
-        'CREATE ' || v_transient || 'SCHEMA ' || v_db || '.' || v_schema
+        'CREATE SCHEMA ' || v_db || '.' || v_schema
         || ' WITH MANAGED ACCESS'
         || ' COMMENT = ''' || REPLACE(v_subject, '''', '''''') || '''';
 
@@ -258,7 +264,6 @@ BEGIN
 
     RETURN 'SUCCESS: Created schema ' || v_db || '.' || v_schema
         || ' for source system ' || SOURCE_SYSTEM || ' with future grants applied.';
-
 END;
 $$;
 
@@ -329,12 +334,13 @@ BEGIN
 
     RETURN 'SUCCESS: Created schema ' || v_db || '.' || v_schema
         || ' for domain ' || DOMAIN || ' with future grants applied.';
-
 END;
 $$;
 ```
 
-Let's create a database that will serve as our Landing Zone, as well as a role and warehouse designed for ingesting data. You may note that this serves as a development environment example. Objects developed here might later be promoted to a TST_LZ and then a main LZ, for testing and production use. Ingestion of data is typically performed by an automated Service User. In the event multiple Service Users will be used to ingest data using multiple solutions, you may wish to create multiple ingestion roles. 
+### Step 4: Landing Zone Database
+
+Let's create a database that will serve as our Landing Zone, as well as a role and warehouse designed for ingesting data.
 
 ```sql
 -- Development LZ Ingestion Role -----------------------------------------------
@@ -368,7 +374,11 @@ GRANT CREATE SCHEMA ON DATABASE DEV_LZ TO ROLE PLT_ADMIN;
 GRANT CREATE DATABASE ROLE ON DATABASE DEV_LZ TO ROLE PLT_ADMIN;
 ```
 
-You may be wondering, why did we not grant any database-specific privileges to the ingestion role, but to the platform administrator role? We'll cover that soon.
+> **Development Environment**
+>
+> You may note that this serves as a development environment example. Objects developed here might later be promoted to a TST_LZ for testing, and then a main LZ, for production use. We're leaving those out here for the sake of brevity. However, in those test and production environments, ingestion of data is typically performed by an automated Service User. In the event multiple Service Users will be used to ingest data using multiple solutions, you may wish to create multiple ingestion roles.
+
+### Step 5: Enterprise Memory and Information Delivery Zone Databases
 
 Now, let's create two more databases. The first will serve as our Data Vault, holding staging, raw vault, and business vault objects. The second will serve as our analyst-facing interface to the Information Delivery Zone. We'll also create a warehouse designed for transforming data.
 
@@ -402,28 +412,49 @@ GRANT CREATE SCHEMA ON DATABASE DEV_DW TO ROLE PLT_ADMIN;
 GRANT CREATE DATABASE ROLE ON DATABASE DEV_DW TO ROLE PLT_ADMIN;
 ```
 
-You may be wondering, why did we not create a role for transforming data in the data vault? The data models in the Landing Zone will be system-oriented. The Landing Zone is where data is ingested and kept as close as possible to its original state, as established by the source systems it came from. The data models in the Enterprise Memory Zone will be sparsely-built, built only with a business reason to do so, in the language of our business, and integrated by business key. The data models in the Information Delivery Zone have the same characteristics.
+> **Transformation and Ingestion Privileges**
+>
+> You may be wondering, why did we not grant privileges to the ingestion role, nor ever create a role for transforming data in the data vault? We will do this later, after the schemas in these databases are in place.
+
 
 <!-- ------------------------ -->
 ## Business Architecture, Domains and Ontologies
 
-Architectural frameworks commonly define dimensions of both context and level of deail. Example levels of architectural context are Business, Information, Application, and System. Example levels of architectural detail are Conceptual (lowest level of detail), Logical, Physical and Implementation (the highest level of detail). It is critical to start with Business Architecture, leveraging that to inform the Information (data) Architecture, not with System (technology). It is also critical to start not with implementation (coding), but with the conceptual design. Yes, Snowflake Guides (like this one) walk through examples of code that can be directly executed on Snowflake, but let's take a moment to think about how we might have formulated these examples.
+It is critical that our Business Architecture inform our Information Architecture. Let's take a moment to think about how business architecture would guide these next these examples.
 
-Business architecture can be organized conceptually into a **hierarchy of domains**. Domains are not teams of people (but there is a connecction). Eric Evans, in the book Domain Driven Design, defines a **domain** as, "a sphere of knowledge, influence, or activity." It is important to recognize that, assuming your organization has been performing business activities regularly, these domains already exist. They simply need to be formally recognized. These domains can be diagramed in a hierarchy, with domains potentially broken into sub-domains (and potentially more sub-domains under those). The business activities in these domains **originate data** as valuable assets, not waste byproducts.
+### Domains
 
-Additionally, a domain's business activities can rarely function successfully without using data originating from other domains as input. For example, the **Finance** domain's activity of accounting for revenue recognition in the prior quarter depends on invoicing data associated with fulfilled orders, that invoice data originating from activities in the **Customer Service** domain. Before being invoiced, those orders were fulfilled by activities in the **Manufacturing & Delivery** domain. Those orders originated with activities in the **Sales & Marketing** domain. Those placed but unfulfilled orders, or possibly just a Sales & Marketing expectation of future orders, might inform a Finance domain's Revenue Forecast. The people performing all those activities -- whether they work in the Sales & Marketing, Customer Service, Manufacturing & Delivery, or Finance teams -- are all hired, tracked and managed through activities in the **Workforce** domain. And those workers were likely given an email address through activities the **IT Delivery** domain. The complex web of connections is difficult (if not impossible) to diagram or comprehend in total, but within the perspective of a single domain, understanding more more easily achieved.
+Business architecture can be organized conceptually into a **hierarchy of domains**. Eric Evans, in the book Domain Driven Design, defines a **domain** as, "a sphere of knowledge, influence, or activity." It is important to recognize that, assuming your organization has been performing business activities regularly, these domains already exist. They can be typically be recognized and diagramed in a hierarchy, where domains can be broken into sub-domains. The business **activities** in these domains **originate data** as valuable assets, not waste byproducts.
 
-The business processes, as performed in an organization, along with business keys (how the people performing the activities identify things), units of work that connect business keys, descriptive information, what technology systems are used, and input/output connections to other domains, can be formally described and documented in **ontologies**. These ontologies can be captured in simple text documents, or in a knowledge graph. And because each domain in the hierarchy has a web of connections to other domains, not just hierarchical relationships, athe domain hierarchy is actually a **domain taxonomy**. When getting started, it's important to not attempt a "boil the ocean" approach, but rather limit scope to a prioritized set of specific business objectives. However, it's important to get the portion that is formally documented right -- utilizing the domain expertise of those performing these business processes, gaining the formal approval of those who already have dominion over the given domain(s). You don't want to documented ontology of the Finance domain that the CFO does not recognize or approve of. Every domain, when formally documented, should have an obvious authority figure, already having dominion over the activities, processes, and business vocabulary used within that domain.
+Also, a domain's business activities can rarely function without using data originating from other domains as input. For example, the **Finance** activity of accounting for revenue recognition in the prior quarter depends on invoicing information associated with fulfilled orders, that invoice data originating from activities in **Customer Service**. Before being invoiced, those orders were fulfilled by activities in **Manufacturing & Delivery**. Those orders originated with activities in **Sales & Marketing**. Placed but unfulfilled orders, or possibly just a Sales & Marketing expectation of future orders, might inform a Finance domain's Revenue Forecast. The people performing all those activities are all hired, tracked and managed through activities in the **Workforce** domain. And those workers were likely first given an email address through activities the **IT Delivery** domain. The complex web of connections between domains is difficult,if not impossible, to diagram or comprehend in total. Within the perspective of only a single domain, understanding is more easily achieved.
 
-As an example, we'll consider the following diagram of a simple domain hierarchy.
+> Note: The domain examples above are inspired by the [TBM Taxonomy](https://www.tbmcouncil.org/learn-tbm/resource-center/the-tbm-taxonomy/).
 
+### Domain Taxonomy and Ontologies
 
+The business processes, as performed in an organization, along with business keys (how the people performing theos activities identify things), units of work that connect business keys, descriptive information produced by activities, what technology systems are used, and input/output connections to other domains, can all be formally described in **ontologies**. These ontologies can be captured in simple text documents, or aided by knowledge graph. And because each domain has a web of connections to other domains, not just hierarchical relationships, that domain hierarchy becomes a **domain taxonomy**. When getting started, don't attempt to "boil the ocean," but rather limit scope to a prioritized set of specific business objectives. However, it is important that what is formally documented is captured accurately, utilizing the domain expertise of those performing these business processes, reviewing with and gaining the formal approval of those who have dominion over the given domain(s). You don't want a documented ontology of the Finance domain that the CFO does not recognize or approve of. Every domain, when formally documented, should have an obvious authority figure, already having dominion over the activities, processes, and business vocabulary used within that domain.
 
-With Snowflake, schema objects -- which include tables, views, stages, files formats, pipes, streams, UDFs, stored procedures, and more -- always exist within a schema. While access control is possible at the schema object level, assigning privileges on each individual object, doing so quickly becomes tedious and costly to maintain. When objects with common access control objectives are grouped together into schemas, maintaining access controls becomes much easier. Governance of access controls (as well as many other things) is almost always domain-oriented. Thus, we'll use domain-oriented schemas to organize the objects in our Enterprise Memory Zone and beyond.
+As an example, we'll consider the following simple domain hierarchy, starting with just two domains, Sales & Marketing and Customer Service.
+
+![dbt_project.yml](assets/exampledomains.png)
+
+With Snowflake, schema objects -- which include tables, views, stages, files formats, pipes, streams, UDFs, stored procedures, and more -- always exist within a schema. While access control is possible at the schema object level, assigning privileges on each individual object, doing so at that grain quickly becomes tedious and costly to maintain. When objects with common access control objectives are grouped together into schemas, maintaining access controls becomes much easier. Real-world governance is almost always domain-oriented. Thus, we'll use domain-oriented schemas to organize the objects in our Enterprise Memory Zone and beyond, promoting domain-oriented governance.
 
 
 <!-- ------------------------ -->
-## From Logical Business Architecture to Implemented Snowflake Objects
+## From Logical Business Architecture to Implementation
+
+### Step 6: Sample Source System Schema
+
+In a real world scenario, because the data in the Landing Zone is source-system-oriented, a schema found in a Landing Zone database should be associated with a source system. For the sake of simplicity, let's create a single schema designed to land ingested sample data from the TPC-H decision support benchmark.
+
+
+
+### Step 7: Domain-Oriented Schemas
+
+
+
+### Step 8: Domain-Oriented Roles and Privileges
 
 
 
