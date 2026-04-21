@@ -43,77 +43,14 @@ Luckily, streaming data is one of the [use-cases](/cloud-data-platform/) that Sn
 
 
 <!-- ------------------------ -->
-## Reference Architecture
+## Reference Architecture and Environment Setup
 
-Let’s start with the overall architecture to put everything in context. 
+This is the target architecture. 
 
 ![Multi-Tier Data Vault Architecture](assets/img1.png)  
 
-On the very left of figure above we have a list of **data providers** that typically include a mix of existing operational databases, old data warehouses, files, lakes as well as 3rd party apps. There is now also the  possibility to leverage Snowflake Data Sharing/Marketplace as a way to tap into new 3rd party data assets to augment your data set. 
+In the [Defensible Analytics using Data Vault and Snowflake](https://www.snowflake.com/en/developers/guides/defensible-analytics-using-data-vault-and-snowflake/) guide, we implement components of this architecture, which we'll use in this guide. If you haven't already executed the steps in that guide in your Snowflake account, you'll need to do that now, or change the examples given in this guide to accomodate your design.
 
-On the very right we have our ultimate **data consumers**: business users, data scientists, IT systems or even other companies you decided to exchange your data with.
- 
-Architecturally, we will split the data lifecycle into following layers:
-* **Data Acquisition:** extracting data from source systems and making it accessible for Snowflake.
-* **Loading & Staging:** moving the source data into Snowflake. For this Snowflake has multiple options, including batch load, external tables and Snowpipe(our managed service for onboarding streaming data). Snowflake allows you to load and store structured and semi-structured in the original format whilst automatically optimizing the physical structure for efficient query access. The data is immutable and should be stored as it was received from source with no changes to the content. From a Data Vault perspective, functionally, this layer is also responsible for adding technical metadata (record source,, load date timestamp, etc.) as well as calculating business keys. 
-* **Raw Data Vault:** a data vault model with no soft business rules or transformations applied (only hard rules are allowed) loading all records received from source.
-* **Business Data Vault:** data vault objects with soft business rules applied. The raw data vault data is getting augmented by the intelligence of the system. It is not a copy of the raw data vault, but rather a sparse addition with perhaps calculated satellites,  mastered records,or maybe even commonly used aggregations. This could also optionally include PIT and Bridge tables helping to simplify access to bi-temporal view of the data. From a Snowflake perspective, raw and business data vaults could be separated by object naming convention or represented as different schemas or even different databases. 
-* **Information Delivery:** a layer of consumer-oriented models. This could be implemented as a set (or multiple sets) of views. It is common to see the use of dimensional models (star/snowflake) or denormalized flat tables (for example for data science or sharing) but it could be any other modeling stye (e.g., unified star schema, supernova, key-value, document object mode, etc.) that fits best for your data consumer. Snowflake’s scalability will support the required speed of access at any point of this data lifecycle. You should consider Business Vault and Information Delivery objects materialization as optional. This specific topic (virtualization) is going to be covered later in this article. 
-
-
-<!-- ------------------------ -->
-## Environment setup 
-
-1. Login to your Snowflake trial account.  
-![Snowflake Log In Screen](assets/img4.png)  
-
-2. First page you are going to see would likely be [Snowflake Classic UI](https://docs.snowflake.com/en/user-guide/ui-using.html):
-![Snowflake Classic UI](assets/img7.png)   
-To keep things interesting, for the purpose of this lab let's use [Snowflake New Web Interface](https://docs.snowflake.com/en/user-guide/ui-web.html) also known as Snowsight. However, you absolutely can continue using Classic UI as all steps in this guide are expressed in SQL and will work regardless what interface is used.
-To switch into Snowsight, let's click the **Preview** button in the top-right corner:
-
-![Snowflake New UI](assets/img5.png)   
-
-Click Sign in to continue. You will need to use the same user and password that you used to login to your Snowflake account the first time.
-
-![Sign In](assets/img6.png)   
-
-You're now in the new UI - Snowsight. It's pretty cool - with charting, dashboards, autocompletion and new capabilities that our engineering team will continue to add on weekly. Now, let's click on Worksheets...
-
-3. Let's click on the worksheets -> **+ Worksheet** 
-![Sign In](assets/img8.png)   
-
-And without going into too much details, this is a fairly intuitive SQL workbench. It has a section for code we are going to be copy-pasting, object tree on the left, the 'run' button and of course the result panel at the bottom with the simple charting functionality. 
-![Worksheet](assets/img9.png)   
-
-4. We are going to start by setting up basics for the lab environment. Creating a clean database and logically dividing it into four different schemas, representing each functional area mentioned in the reference architecture. 
-
-To keep things simple, we are going to use the ACCOUNTADMIN role (thou, of course in the real life examples you would employ a proper RBAC model). We also going to create two [Snowflake virtual warehouses](https://docs.snowflake.com/en/user-guide/warehouses.html) to manage compute - one for generic use during the course of this lab and the other one (dv_rdv_wh) that is going to be used by our data pipelines. You might notice that the code for two more virtual warehouses (dv_bdv_wh, dv_id_wh) is commented - again, this is just to keep things simple for the guide but we wanted to illustrate the fact you can have as many of virtual warehouses of any size and configuration as you needed. For example having separate ones to deal with different layers in our Data Vault architecture.
-
-
-```sql
---------------------------------------------------------------------
--- setting up the environment
---------------------------------------------------------------------
-
-USE ROLE accountadmin;
-
-CREATE OR REPLACE DATABASE dv_lab;
-
-USE DATABASE dv_lab;
-
-CREATE OR REPLACE WAREHOUSE dv_lab_wh WITH WAREHOUSE_SIZE = 'XSMALL' MIN_CLUSTER_COUNT = 1 MAX_CLUSTER_COUNT = 1 AUTO_SUSPEND = 60 COMMENT = 'Generic WH';
-CREATE OR REPLACE WAREHOUSE dv_rdv_wh WITH WAREHOUSE_SIZE = 'XSMALL' MIN_CLUSTER_COUNT = 1 MAX_CLUSTER_COUNT = 1 AUTO_SUSPEND = 60 COMMENT = 'WH for Raw Data Vault object pipelines';
---CREATE OR REPLACE WAREHOUSE dv_bdv_wh WITH WAREHOUSE_SIZE = 'XSMALL' MIN_CLUSTER_COUNT = 1 MAX_CLUSTER_COUNT = 1 AUTO_SUSPEND = 60 COMMENT = 'WH for Business Data Vault object pipelines';
---CREATE OR REPLACE WAREHOUSE dv_id_wh  WITH WAREHOUSE_SIZE = 'XSMALL' MIN_CLUSTER_COUNT = 1 MAX_CLUSTER_COUNT = 1 AUTO_SUSPEND = 60 COMMENT = 'WH for information delivery object pipelines';
-
-USE WAREHOUSE dv_lab_wh;
-
-CREATE OR REPLACE SCHEMA l00_stg COMMENT = 'Schema for Staging Area objects';
-CREATE OR REPLACE SCHEMA l10_rdv COMMENT = 'Schema for Raw Data Vault objects';
-CREATE OR REPLACE SCHEMA l20_bdv COMMENT = 'Schema for Business Data Vault objects';
-CREATE OR REPLACE SCHEMA l30_id  COMMENT = 'Schema for Information Delivery objects';
-```
 
 <!-- ------------------------ -->
 ## Data Pipelines: Design

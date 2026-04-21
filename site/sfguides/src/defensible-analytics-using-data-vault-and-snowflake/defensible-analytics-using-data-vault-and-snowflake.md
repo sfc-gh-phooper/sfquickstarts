@@ -45,7 +45,7 @@ In Data Vault 2.1, Linstedt has clearly articulated a logical architecture consi
 <!-- ------------------------ -->
 ## Reference Architecture
 
-Let’s start with the overall architecture to put everything in context. 
+Let’s start with the target architecture. 
 
 ![Multi-Tier Data Vault Architecture](assets/multitierdatavaultarchitecture.png)  
 
@@ -72,6 +72,15 @@ If you're familiar with Snowflake's [Data Cloud Deployment Framework (DCDF)](htt
 In addition to the databases related to our Data Vault zones, a common platform database can serve to hold objects not specific to any single zone.
 
 For the sake of simplicity, this guide will not delve into utilizing multiple Snowflake accounts. However, adopting a multi-account strategy, taking advantage of Snowflake's remarkable [Secure Data Sharing](https://docs.snowflake.com/en/user-guide/data-sharing-intro), could unlock significant value for your organization. A multi-account strategy is one where a single [Organization](https://docs.snowflake.com/en/user-guide/organizations) has multiple Accounts, each serving a specific purpose. This provides you with the flexibility to distribute databases across multiple accounts, where [shared read-only access to data](https://docs.snowflake.com/en/user-guide/data-sharing-intro) with zero copying, and thus enabling the use of different [Editions](https://docs.snowflake.com/en/user-guide/intro-editions), which enable different feature sets and have different compute pricing. Databases may also be [replicated for business continuity and disaster recovery purposes](https://docs.snowflake.com/en/user-guide/account-replication-config).
+
+### Step 0: Login to your Snowflake Account, Create a Workspace File
+
+Login to your Snowflake trial account. You will need to use the same user and password that you used to login to your Snowflake account the first time.
+
+Now, let's click on Projects, Workspaces, + Add new, SQL File, and name it DVArchitecture.sql. If you'd like, you could create a Notebook instead, with sections of SQL code. Either way, This is a fairly intuitive SQL workbench. It has a section for code we are going to be copying from here and pasting there, the 'run' button to execute the code, the result panel at the bottom, and Cortex Code to the right to provide natural language assistance.
+
+![A Fresh Workspace](assets/emptyworkspace.png)   
+
 
 ### Step 1: Platform Role, Warehouse, and Database
 
