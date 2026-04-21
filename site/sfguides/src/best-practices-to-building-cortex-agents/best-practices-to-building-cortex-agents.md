@@ -616,7 +616,7 @@ The process of deploying agents is similar to developer cycles, with three key s
 2. Using systematic tests to drive iteration and improvement.
 3. Graduating to a production agent.
 
-👉 *For a deep dive into evaluation, versioning, CI/CD, and monitoring best practices, see [Best Practices for Evaluating Cortex Agents](https://www.snowflake.com/en/developers/guides/best-practices-to-evaluating-cortex-agents/).*
+👉 *For a deep dive into evaluation, versioning, CI/CD, and monitoring best practices, see [Best Practices for Evaluating Cortex Agents](https://www.snowflake.com/en/developers/guides/best-practices-for-evaluating-cortex-agents/).*
 
 ### Use agent versioning to structure your deployment lifecycle
 
