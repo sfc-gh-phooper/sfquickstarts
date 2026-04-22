@@ -1,6 +1,6 @@
 author: Josh Reini
 id: self-improving-agents-with-cortex-code
-categories: snowflake-site:taxonomy/solution-center/certification/quickstart, snowflake-site:taxonomy/product/ai, snowflake-site:taxonomy/product/platform, snowflake-site:taxonomy/snowflake-feature/cortex-llm-functions
+categories: snowflake-site:taxonomy/solution-center/certification/quickstart, snowflake-site:taxonomy/product/ai, snowflake-site:taxonomy/product/platform, snowflake-site:taxonomy/snowflake-feature/cortex-code, snowflake-site:taxonomy/snowflake-feature/cortex-agents
 language: en
 summary: Build a Cortex Agent, evaluate it with Agent GPA, analyze failures, and optimize its instructions — all from Cortex Code.
 environments: web
