@@ -76,7 +76,7 @@ As your raw vault is updated, streams can then be used to propagate those change
 Following this approach will result in a hands-off production data pipeline that feeds your Data Vault architecture.
 
 <!-- ------------------------ -->
-## Build: Sample Data, Landing Zone, and Staging
+## Build: Landing Zone, Sample Data and Staging for the Raw Vault
 
 Every Snowflake account provides access to [sample data sets](https://docs.snowflake.com/en/user-guide/sample-data.html). You can find corresponding schemas in SNOWFLAKE_SAMPLE_DATA database in your object explorer.
 For this guide we are going to use a subset of objects from [TPC-H](https://docs.snowflake.com/en/user-guide/sample-data-tpch.html) set, representing **customers** and their **orders**. We also going to take some reference data about **nations** and **regions**. 
@@ -309,7 +309,7 @@ SELECT 'DEV_DV.CUSTSERV.stg_orders_strm', count(1) FROM DEV_DV.CUSTSERV.stg_orde
 ```
 ![Matching Row Counts](assets/matchingrowcounts.png)
 
-### Step 5: DV - Loading the Raw Vault
+### Step 5: DV - Preparing to Load the Raw Vault
 
 Finally, now that we established the basics and new data is knocking at our door (stream), let's see how we can derive some of the business keys for the Data Vault entites we are going to model. In this example, we'll model it as a view on top of the stream that should allow us to perform data parsing (raw_json -> columns) and business_key, hash_diff derivation on the fly.
 
@@ -380,6 +380,8 @@ SELECT src.*
 SELECT * FROM stg_order_strm_outbound LIMIT 5;
 ```
 
+[Staged Customer Stream Outbound View](assets/customerstreamoutbound.png)
+
 Does the output look good? Well done! We've built our staging/inbound pipeline, ready to accommodate streaming data with defined business keys, hash keys, and hash diffs that we are going to use in our Raw Data Vault. Let's move on to the next step!
 
 
@@ -391,7 +393,7 @@ In this section, we will start building structures and pipelines for the **Raw V
 Here is the ERD of the objects we are going to deploy using the script below:
 ![Raw Vault ERD](assets/img16.png)
 
-### Step 1: Create Target Raw Vault Tables
+### Step 1: Raw Vault Tables
 
 We'll start with DDL for the Hubs, Links and Satellites. As you can expect, this guide won't go into detail on the data vault modelling process. For certified training in DV2.1, We highly recommend working with experts & partners from Data Vault Alliance. Note that while we'll identify primary and foreign keys, remember that Snowflake does not enforce contraints.
 
@@ -514,11 +516,11 @@ CREATE OR REPLACE TABLE rv_lnk_customer_order
 );
 ```
 
-### Step 2: Automated Loading into the Raw Vault Tables
+### Step 2: Continuous Loading into the Raw Vault Tables
 
-Now, we have source data waiting in our staging streams & views, and we have target Raw Vault tables ready. Empty, but ready.
+Now, we have source data waiting in our staging streams & views, and we have target Raw Vault tables ready.
 
-Let's connect the dots. We'll create tasks, one per stream, so when new records are available, that new data will be incrementally loaded to all dependent Raw Vault models in one operation. To achieve that, we'll use multi-table insert capability of Snowflake mentioned earlier. As you can see, tasks can be set up to run on a pre-defined frequency (every 1 minute in our example) and use a dedicated virtual warehouse as a compute power. To minimize compute costs, before waking up a compute resource, tasks will check for new data in the stream. You only pay for the compute you use.
+Let's connect the dots. We'll create tasks, one task per stream, so when new records are available, that new data will be incrementally loaded to all dependent Raw Vault models in one operation. To achieve that, we'll use **multi-table insert** capability of Snowflake mentioned earlier. As you can see, tasks can be set up to run on a pre-defined frequency (every 1 minute in our example) and use a dedicated virtual warehouse as a compute power. To minimize compute costs, before waking up a compute resource, tasks will check for new data in the stream. You only pay for the compute you use.
 
 ```sql
 USE ROLE SALESMKT_ENGINEER;

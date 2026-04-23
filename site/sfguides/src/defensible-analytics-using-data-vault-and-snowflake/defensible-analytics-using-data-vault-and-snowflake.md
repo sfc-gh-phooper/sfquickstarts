@@ -324,11 +324,11 @@ BEGIN
         || ' SET TAG PLT.GOVERNANCE.DOMAIN = ''' || REPLACE(DOMAIN, '''', '''''') || '''';
 
     -- _R: read access to domain schema objects
-    EXECUTE IMMEDIATE 'GRANT SELECT ON FUTURE TABLES IN SCHEMA ' || v_db || '.' || v_schema
-        || ' TO DATABASE ROLE ' || v_db || '.' || v_schema || '_R';
-    EXECUTE IMMEDIATE 'GRANT SELECT ON FUTURE VIEWS IN SCHEMA ' || v_db || '.' || v_schema
+    EXECUTE IMMEDIATE 'GRANT SELECT, REFERENCES ON FUTURE TABLES IN SCHEMA ' || v_db || '.' || v_schema
         || ' TO DATABASE ROLE ' || v_db || '.' || v_schema || '_R';
     EXECUTE IMMEDIATE 'GRANT SELECT ON FUTURE DYNAMIC TABLES IN SCHEMA ' || v_db || '.' || v_schema
+        || ' TO DATABASE ROLE ' || v_db || '.' || v_schema || '_R';
+    EXECUTE IMMEDIATE 'GRANT SELECT ON FUTURE VIEWS IN SCHEMA ' || v_db || '.' || v_schema
         || ' TO DATABASE ROLE ' || v_db || '.' || v_schema || '_R';
     EXECUTE IMMEDIATE 'GRANT USAGE ON FUTURE FUNCTIONS IN SCHEMA ' || v_db || '.' || v_schema
         || ' TO DATABASE ROLE ' || v_db || '.' || v_schema || '_R';
@@ -346,9 +346,9 @@ BEGIN
     -- _W: schema-level CREATE privileges
     EXECUTE IMMEDIATE 'GRANT CREATE TABLE ON SCHEMA ' || v_db || '.' || v_schema
         || ' TO DATABASE ROLE ' || v_db || '.' || v_schema || '_W';
-    EXECUTE IMMEDIATE 'GRANT CREATE VIEW ON SCHEMA ' || v_db || '.' || v_schema
-        || ' TO DATABASE ROLE ' || v_db || '.' || v_schema || '_W';
     EXECUTE IMMEDIATE 'GRANT CREATE DYNAMIC TABLE ON SCHEMA ' || v_db || '.' || v_schema
+        || ' TO DATABASE ROLE ' || v_db || '.' || v_schema || '_W';
+    EXECUTE IMMEDIATE 'GRANT CREATE VIEW ON SCHEMA ' || v_db || '.' || v_schema
         || ' TO DATABASE ROLE ' || v_db || '.' || v_schema || '_W';
     EXECUTE IMMEDIATE 'GRANT CREATE FUNCTION ON SCHEMA ' || v_db || '.' || v_schema
         || ' TO DATABASE ROLE ' || v_db || '.' || v_schema || '_W';
