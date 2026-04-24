@@ -6,7 +6,6 @@ categories: snowflake-site:taxonomy/solution-center/certification/quickstart, sn
 environments: web
 status: Published
 feedback link: https://github.com/Snowflake-Labs/sfguides/issues
-fork repo link: https://github.com/sfc-gh-phooper/sfquickstarts
 
 
 # Defensible Analytics using Data Vault and Snowflake
