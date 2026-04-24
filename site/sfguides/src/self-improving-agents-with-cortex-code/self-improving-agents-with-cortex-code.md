@@ -217,9 +217,9 @@ patterns do you see?
 
 **Common failure patterns you'll see:**
 
-- Agent uses only one tool when the query needs both quantitative AND qualitative data
-- Report generation fails because the agent doesn't look up `campaign_id` first
-- Vague answers that don't combine data from multiple sources
+- Wrong tool selection for multi-tool queries
+- Redundant tool calls
+- VaIncomplete summaries missing key data
 
 ### Generate improved instructions
 
@@ -252,32 +252,10 @@ scores by metric and highlight what improved.
 - **Overall score improvement**: VERSION$2 should score higher across both metrics
 - **No regressions**: VERSION$2 should still handle simple queries just as well as VERSION$1
 
-<!-- ------------------------ -->
-
-## Review
-
-Ask Cortex Code to summarize the full optimization:
-
-```
-Show me a summary of everything we did — both agent versions, what changed
-in the instructions, the eval runs, and the score comparison.
-```
-
 You can also inspect agent versions directly:
 
 ```sql
 SHOW VERSIONS IN AGENT SELF_IMPROVING_AGENT_DB.AGENTS.MARKETING_CAMPAIGNS_AGENT;
-```
-
-### Explore Observability Traces
-
-Ask Cortex Code to dig into what the agent actually did:
-
-```
-Show me the observability traces for
-SELF_IMPROVING_AGENT_DB.AGENTS.MARKETING_CAMPAIGNS_AGENT. Find an example
-where V1 failed and V2 succeeded on the same query — compare the tool
-calls and reasoning.
 ```
 
 <!-- ------------------------ -->
