@@ -187,28 +187,6 @@ against the registered dataset. Once the eval completes, show me the evaluation 
 identify which queries scored lowest. What are the common failure patterns?
 ```
 
-### GPA Metrics
-
-| Metric | Description |
-|--------|-------------|
-| `answer_correctness` | How closely the response matches the expected ground truth answer |
-| `logical_consistency` | Measures consistency across agent instructions, planning, and tool calls (reference-free) |
-
-<!-- ------------------------ -->
-
-## Optimize and Validate
-
-### Analyze failures
-
-Enter this prompt in Cortex Code:
-
-```
-Dig into the lowest-scoring queries from the eval of
-SELF_IMPROVING_AGENT_DB.AGENTS.MARKETING_CAMPAIGNS_AGENT. Show me the
-actual tool calls the agent made vs what ground truth expected. What
-patterns do you see?
-```
-
 **Common failure patterns you'll see:**
 
 - Wrong tool selection for multi-tool queries
