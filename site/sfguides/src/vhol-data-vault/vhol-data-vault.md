@@ -7,6 +7,7 @@ environments: web
 status: Published 
 feedback link: https://github.com/Snowflake-Labs/sfguides/issues
 
+
 # Building a Real-Time Data Vault in Snowflake
 <!-- ------------------------ -->
 ## Continuous Data
@@ -969,13 +970,13 @@ USE ROLE SALESMKT_ENGINEER;
 USE WAREHOUSE ENGINEERING_WH;
 USE SCHEMA DEV_DV.SALESMKT;
 
-CREATE VIEW rv_sat_customer_current
+CREATE OR REPLACE VIEW rv_sat_customer_current
 AS
 SELECT  *
 FROM    rv_sat_customer
 QUALIFY LEAD(ldts) OVER (PARTITION BY customer_hk ORDER BY ldts) IS NULL;
 
-CREATE VIEW bv_sat_customer_current
+CREATE OR REPLACE VIEW bv_sat_customer_current
 AS
 SELECT  *
 FROM    bv_sat_customer
@@ -991,7 +992,7 @@ SELECT  *
 FROM    rv_sat_order
 QUALIFY LEAD(ldts) OVER (PARTITION BY order_hk ORDER BY ldts) IS NULL;
 
-CREATE VIEW bv_sat_order_current
+CREATE OR REPLACE VIEW bv_sat_order_current
 AS
 SELECT  *
 FROM    bv_sat_order
