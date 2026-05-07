@@ -1,8 +1,8 @@
 author: Paul Hooper
 id: defensible-analytics-using-data-vault-and-snowflake
+categories: snowflake-site:taxonomy/solution-center/certification/quickstart, snowflake-site:taxonomy/product/platform, snowflake-site:taxonomy/snowflake-feature/business-intelligence
 language: en
 summary: Defensible Analytics using Data Vault and Snowflake
-categories: snowflake-site:taxonomy/solution-center/certification/quickstart, snowflake-site:taxonomy/product/platform, snowflake-site:taxonomy/snowflake-feature/business-intelligence
 environments: web
 status: Published
 feedback link: https://github.com/Snowflake-Labs/sfguides/issues
@@ -565,9 +565,9 @@ With Snowflake, schema objects -- which include tables, views, stages, file form
 <!-- ------------------------ -->
 ## From Logical Business Architecture to Implementation
 
-### Step 6: Sample Source System Schema
+### Step 6: Source-System-Oriented Schemas
 
-In a real world scenario, because the data in the Landing Zone is source-system-oriented, a schema found in a Landing Zone database should be associated with a source system. For the sake of simplicity, let's create a single schema designed to land ingested sample data from the TPC-H decision support benchmark.
+In a real world scenario, because the data in the Landing Zone is source-system-oriented, each schema found in a Landing Zone database should be associated with a source system. Let's create three schemas designed to land ingested sample data from the TPC-H decision support benchmark.
 
 ```sql
 -- Landing Zone Schemas --------------------------------------------------------
